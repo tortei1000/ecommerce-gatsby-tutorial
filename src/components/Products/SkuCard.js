@@ -35,17 +35,21 @@ const formatPrice = (amount, currency) => {
 }
 
 const SkuCard = class extends React.Component {
-  async redirectToCheckout(event, sku, quantity = 1) {
-    event.preventDefault()
-    const { error } = await this.props.stripe.redirectToCheckout({
-      items: [{ sku, quantity }],
-      successUrl: `${window.location.origin}/page-2/`,
-      cancelUrl: `${window.location.origin}/advanced`,
-    })
+  state = {
+    disabled: false,
+    buttonText: 'ADD TO CART',
+    paymentMessage: '',
+  }
 
-    if (error) {
-      console.warn('Error:', error)
-    }
+  resetButton() {
+    this.setState({ disabled: false, buttonText: 'ADD ME BABY ONE MORE TIME!' })
+  }
+
+  addToCart(event, skuId, quantity = 1) {
+    event.preventDefault()
+    this.setState({ disabled: true, buttonText: 'ADDED...' })
+    this.props.addToCart(skuId)
+    setTimeout(this.resetButton.bind(this), 500)
   }
 
   render() {
@@ -54,12 +58,15 @@ const SkuCard = class extends React.Component {
       <div style={cardStyles}>
         <h4>{sku.attributes.name}</h4>
         <p>Price: {formatPrice(sku.price, sku.currency)}</p>
+        <img src = {sku.image} width="200px" />
         <button
           style={buttonStyles}
-          onClick={event => this.redirectToCheckout(event, sku.id)}
+          onClick={event => this.addToCart(event, sku.id)}
+          disabled={this.state.disabled}
         >
-          BUY ME
+          {this.state.buttonText}
         </button>
+        {this.state.paymentMessage}
       </div>
     )
   }

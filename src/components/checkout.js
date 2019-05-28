@@ -17,7 +17,7 @@ const Checkout = class extends React.Component {
   // You can find your key in the Dashboard:
   // https://dashboard.stripe.com/account/apikeys
   componentDidMount() {
-    this.stripe = window.Stripe('pk_test_jG9s3XMdSjZF9Kdm5g59zlYd', {
+    this.stripe = window.Stripe('pk_test_hGwwmYnoWqCZFykTnj5qkIyr00HDJPLIJP', {
       betas: ['checkout_beta_4'],
     })
   }
@@ -25,13 +25,13 @@ const Checkout = class extends React.Component {
   async redirectToCheckout(event) {
     event.preventDefault()
     const { error } = await this.stripe.redirectToCheckout({
-      items: [{ sku: 'sku_DjQJN2HJ1kkvI3', quantity: 1 }],
-      successUrl: `${window.location.origin}/page-2/`,
-      cancelUrl: `${window.location.origin}/`,
+      items: this.props.cart,
+      successUrl: `http://localhost:8001/page-2/`,
+      cancelUrl: `http://localhost:8001/advanced/`,
     })
 
     if (error) {
-      console.warn('Error:', error)
+      console.error('Error:', error)
     }
   }
 
@@ -40,8 +40,9 @@ const Checkout = class extends React.Component {
       <button
         style={buttonStyles}
         onClick={event => this.redirectToCheckout(event)}
+        disabled={!this.props.cart.length}
       >
-        BUY MY BOOK
+        {this.props.cart.length ? 'GO TO CHECKOUT' : 'CART IS EMPTY'}
       </button>
     )
   }
